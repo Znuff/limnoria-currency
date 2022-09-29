@@ -1,6 +1,6 @@
 Currency conversion plugin for Limnoria/Supybot.
 
-This uses the Free Plan API from https://currencylayer.com/.
+This uses the Free Plan API from https://apilayer.com/marketplace/currency_data-api.
 
 You will need an API KEY.
 
