@@ -63,27 +63,27 @@ class Currency(callbacks.Plugin):
         if len(curr1) !=3 and len(curr2) != 3:
             irc.error('You must use three-letter symbols for currencies.')
 
-        url = 'http://apilayer.net/api/live?access_key=%s'
+        url = 'http://api.apilayer.com/currency_data/convert?to={curr2}&from={curr1}&amount={amount}&apikey={apikey}'.format(curr2=curr2.upper(), curr1=curr1.upper(), amount=number, apikey=api_key);
 
         try:
-            content = utils.web.getUrl(url % api_key)
-        except utils.web.Error, e:
+            content = utils.web.getUrl(url)
+        except utils.web.Error as e:
             irc.error(str(e), Raise=True)
 
-        data = json.loads(content)
+        content = utils.web.getUrl(url)
+
+        data = json.loads(content.decode('utf-8'))
 
         if data['success']:
             try:
-                val1 = data['quotes']['USD%s' % curr1.upper()]
-                val2 = data['quotes']['USD%s' % curr2.upper()]
-            except:
-                irc.error('no such currency', Raise=True)
-
-            try:
-                result = val2 * number / val1
-                irc.reply(format('%.2f %s == %.2f %s', number, curr1.upper(), result, curr2.upper()))
-            except:
-                irc.error('I have no idea. Something fucked up.')
+                # better ides?
+                # from_amount = str(data['query']['amount']).format('{:.06f}').rstrip("0")
+                from_amount = data['query']['amount']
+                # to_amount = str(data['result']).format('{:.06f}').rstrip("0")
+                to_amount = data['result']
+                irc.reply( format('%.2f %s == %.2f %s', from_amount, data['query']['from'], to_amount, data['query']['to']) )
+            except Exception as e:
+                irc.error('I have no idea. Something fucked up: {}'.format(str(e)))
 
     convert = wrap(convert, [optional('float', 1.0), 'lowered', 'to', 'lowered'])
 
@@ -91,4 +91,4 @@ class Currency(callbacks.Plugin):
 Class = Currency
 
 
-# vim:set shiftwidth=4 softtabstop=4 expandtab textwidth=79:
+# vim:set shiftwidth=4 softtabstop=4 expandtab :
