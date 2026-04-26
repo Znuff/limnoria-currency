@@ -63,7 +63,7 @@ class Currency(callbacks.Plugin):
         if len(curr1) !=3 and len(curr2) != 3:
             irc.error('You must use three-letter symbols for currencies.')
 
-        url = 'http://api.apilayer.com/currency_data/convert?to={curr2}&from={curr1}&amount={amount}&apikey={apikey}'.format(curr2=curr2.upper(), curr1=curr1.upper(), amount=number, apikey=api_key);
+        url = 'https://api.apilayer.com/currency_data/convert?to={curr2}&from={curr1}&amount={amount}&apikey={apikey}'.format(curr2=curr2.upper(), curr1=curr1.upper(), amount=number, apikey=api_key);
 
         try:
             content = utils.web.getUrl(url)
