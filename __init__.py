@@ -51,6 +51,8 @@ __url__ = ''
 
 from . import config
 from . import plugin
+
+import sys
 if sys.version_info >= (3, 4):
     from importlib import reload
 else:

@@ -58,32 +58,30 @@ class Currency(callbacks.Plugin):
         api_key = self.registryValue('apikey')
 
         if not api_key:
-            irc.error('No API Key configured.')
+            irc.error('No API Key configured.', Raise=True)
 
-        if len(curr1) !=3 and len(curr2) != 3:
-            irc.error('You must use three-letter symbols for currencies.')
+        if len(curr1) != 3 or not curr1.isalpha() or len(curr2) != 3 or not curr2.isalpha():
+            irc.error('You must use three-letter alphabetic symbols for currencies.', Raise=True)
 
-        url = 'https://api.apilayer.com/currency_data/convert?to={curr2}&from={curr1}&amount={amount}&apikey={apikey}'.format(curr2=curr2.upper(), curr1=curr1.upper(), amount=number, apikey=api_key);
+        url = 'https://api.apilayer.com/currency_data/convert?to={curr2}&from={curr1}&amount={amount}&apikey={apikey}'.format(curr2=curr2.upper(), curr1=curr1.upper(), amount=number, apikey=api_key)
 
         try:
             content = utils.web.getUrl(url)
         except utils.web.Error as e:
             irc.error(str(e), Raise=True)
 
-        content = utils.web.getUrl(url)
-
         data = json.loads(content.decode('utf-8'))
 
         if data['success']:
             try:
-                # better ides?
-                # from_amount = str(data['query']['amount']).format('{:.06f}').rstrip("0")
                 from_amount = data['query']['amount']
-                # to_amount = str(data['result']).format('{:.06f}').rstrip("0")
                 to_amount = data['result']
-                irc.reply( format('%.2f %s == %.2f %s', from_amount, data['query']['from'], to_amount, data['query']['to']) )
+                irc.reply(format('%.2f %s == %.2f %s', from_amount, data['query']['from'], to_amount, data['query']['to']))
             except Exception as e:
-                irc.error('I have no idea. Something fucked up: {}'.format(str(e)))
+                irc.error('Unexpected error while parsing API response: {}'.format(str(e)), Raise=True)
+        else:
+            error_info = data.get('error', {})
+            irc.error('API error: {}'.format(error_info.get('info', 'Unknown error.')), Raise=True)
 
     convert = wrap(convert, [optional('float', 1.0), 'lowered', 'to', 'lowered'])
 
